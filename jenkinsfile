@@ -3,38 +3,20 @@ pipeline {
 
     stages {
 
-        stage('Clone Code') {
-            steps {
-                git branch: 'main', url: 'https://github.com/agrimtech-dev/test-cicd.git'
-            }
-        }
-
-        stage('Build Docker Image') {
-            steps {
-                sh 'docker build --no-cache -t my-app .'
-            }
-        }
-
-        stage('Stop & Remove Old Container') {
+        stage('Deploy Container') {
             steps {
                 sh '''
-                docker stop my-app-container || true
-                docker rm my-app-container || true
-                '''
-            }
-        }
+                docker rm -f my-nginx || true
 
-        stage('Run New Container') {
-            steps {
-                sh '''
-                docker run -d -p 8081:80 --name my-app-container my-app
-                '''
-            }
-        }
+                docker run -d -p 8081:80 --name my-nginx nginx
 
-        stage('Cleanup Old Images') {
-            steps {
-                sh 'docker image prune -f'
+                docker exec my-nginx sh -c "
+                    rm -rf /usr/share/nginx/html/* &&
+                    apt update &&
+                    apt install git -y &&
+                    git clone https://github.com/agrimtech-dev/test-cicd.git /usr/share/nginx/html
+                "
+                '''
             }
         }
     }
