@@ -14,20 +14,21 @@ pipeline {
             }
         }
 
-        stage('Build') {
+        stage('Build Docker Image') {
             steps {
-                echo "Build started..."
-                sh 'ls -la'
+                sh 'docker build -t my-app .'
             }
         }
 
-        stage('Deploy') {
+        stage('Stop Old Container') {
             steps {
-                sh '''
-                mkdir -p /var/www/html/project
-                rm -rf /var/www/html/project/*
-                cp -r * /var/www/html/project/
-                '''
+                sh 'docker rm -f my-app-container || true'
+            }
+        }
+
+        stage('Run New Container') {
+            steps {
+                sh 'docker run -d -p 8081:80 --name my-app-container my-app'
             }
         }
     }
