@@ -2,9 +2,15 @@ pipeline {
     agent any
 
     stages {
+        stage('Clean') {
+            steps {
+                cleanWs()
+            }
+        }
+
         stage('Clone Code') {
             steps {
-                git 'https://github.com/agrimtech-dev/test-cicd.git'
+                git branch: 'main', url: 'https://github.com/agrimtech-dev/test-cicd.git'
             }
         }
 
@@ -17,8 +23,9 @@ pipeline {
         stage('Deploy') {
             steps {
                 sh '''
-                rm -rf /var/www/html/project/*
-                cp -r * /var/www/html/project/
+                mkdir -p /var/jenkins_home/project
+                rm -rf /var/jenkins_home/project/*
+                cp -r * /var/jenkins_home/project/
                 '''
             }
         }
