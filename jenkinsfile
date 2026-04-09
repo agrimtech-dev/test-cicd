@@ -2,11 +2,6 @@ pipeline {
     agent any
 
     stages {
-        stage('Clean') {
-            steps {
-                deleteDir()
-            }
-        }
 
         stage('Clone Code') {
             steps {
@@ -16,19 +11,30 @@ pipeline {
 
         stage('Build Docker Image') {
             steps {
-                sh 'docker build -t my-app .'
+                sh 'docker build --no-cache -t my-app .'
             }
         }
 
-        stage('Stop Old Container') {
+        stage('Stop & Remove Old Container') {
             steps {
-                sh 'docker rm -f my-app-container || true'
+                sh '''
+                docker stop my-app-container || true
+                docker rm my-app-container || true
+                '''
             }
         }
 
         stage('Run New Container') {
             steps {
-                sh 'docker run -d -p 8081:80 --name my-app-container my-app'
+                sh '''
+                docker run -d -p 8081:80 --name my-app-container my-app
+                '''
+            }
+        }
+
+        stage('Cleanup Old Images') {
+            steps {
+                sh 'docker image prune -f'
             }
         }
     }
