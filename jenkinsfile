@@ -2,19 +2,24 @@ pipeline {
     agent any
 
     stages {
-        stage('build') {
+        stage('Clone Code') {
             steps {
-                echo 'Building the app'
+                git 'https://github.com/agrimtech-dev/test-cicd.git'
             }
         }
-        stage('Test') {
+
+        stage('Build') {
             steps {
-                echo 'Running Test'
+                echo "Build started..."
             }
         }
+
         stage('Deploy') {
             steps {
-                echo 'Deploying the app'
+                sh '''
+                rm -rf /var/www/html/project/*
+                cp -r * /var/www/html/project/
+                '''
             }
         }
     }
