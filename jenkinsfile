@@ -24,9 +24,9 @@ pipeline {
         stage('Deploy') {
             steps {
                 sh '''
-                mkdir -p /var/jenkins_home/project
-                rm -rf /var/jenkins_home/project/*
-                cp -r * /var/jenkins_home/project/
+                mkdir -p /var/www/html/project
+                rm -rf /var/www/html/project/*
+                cp -r * /var/www/html/project/
                 '''
             }
         }
