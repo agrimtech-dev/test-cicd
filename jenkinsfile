@@ -1,21 +1,24 @@
 pipeline {
     agent any
-
     stages {
+        stage('Clone Code') {
+            steps {
+                git branch: 'main', url: 'https://github.com/agrimtech-dev/test-cicd.git'
+            }
+        }
+
+        stage('Build Docker Image') {
+            steps {
+                sh 'docker build -t my-nginx-image .'
+            }
+        }
 
         stage('Deploy Container') {
             steps {
                 sh '''
-                docker rm -f my-nginx || true
-
-                docker run -d -p 8081:80 --name my-nginx nginx
-
-                docker exec my-nginx sh -c "
-                    rm -rf /usr/share/nginx/html/* &&
-                    apt update &&
-                    apt install git -y &&
-                    git clone https://github.com/agrimtech-dev/test-cicd.git /usr/share/nginx/html
-                "
+                    docker stop my-nginx || true
+                    docker rm my-nginx || true
+                    docker run -d -p 8081:80 --name my-nginx my-nginx-image
                 '''
             }
         }
